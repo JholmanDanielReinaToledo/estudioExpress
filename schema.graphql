@@ -1,0 +1,305 @@
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+
+  """
+  The root query type must be a `Node` to work well with Relay 1 mutations. This just resolves to `query`.
+  """
+  nodeId: ID!
+
+  """Fetches an object given its globally unique `ID`."""
+  node(
+    """The globally unique `ID`."""
+    nodeId: ID!
+  ): Node
+
+  """Reads and enables pagination through a set of `Tarea`."""
+  allTareas(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Tarea`."""
+    orderBy: [TareasOrderBy!] = [NATURAL]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: TareaCondition
+  ): TareasConnection
+  tareaById(id: BigInt!): Tarea
+}
+
+"""An object with a globally unique `ID`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+"""A connection to a list of `Tarea` values."""
+type TareasConnection {
+  """A list of `Tarea` objects."""
+  nodes: [Tarea!]!
+
+  """
+  A list of edges which contains the `Tarea` and cursor to aid in pagination.
+  """
+  edges: [TareasEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Tarea` you could get from the connection."""
+  totalCount: Int!
+}
+
+type Tarea {
+  id: BigInt!
+  name: String!
+  titulo: String!
+  date: Datetime
+}
+
+"""
+A signed eight-byte integer. The upper big integer values are greater than the
+max value for a JavaScript number. Therefore all big integers will be output as
+strings and not numbers.
+"""
+scalar BigInt
+
+"""
+A point in time as described by the [ISO
+8601](https://en.wikipedia.org/wiki/ISO_8601) standard. May or may not include a timezone.
+"""
+scalar Datetime
+
+"""A `Tarea` edge in the connection."""
+type TareasEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Tarea` at the end of the edge."""
+  node: Tarea!
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
+"""Methods to use when ordering `Tarea`."""
+enum TareasOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  TITULO_ASC
+  TITULO_DESC
+  DATE_ASC
+  DATE_DESC
+}
+
+"""
+A condition to be used against `Tarea` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input TareaCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: BigInt
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `titulo` field."""
+  titulo: String
+
+  """Checks for equality with the object’s `date` field."""
+  date: Datetime
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  """Creates a single `Tarea`."""
+  createTarea(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateTareaInput!
+  ): CreateTareaPayload
+
+  """Updates a single `Tarea` using a unique key and a patch."""
+  updateTareaById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateTareaByIdInput!
+  ): UpdateTareaPayload
+
+  """Deletes a single `Tarea` using a unique key."""
+  deleteTareaById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteTareaByIdInput!
+  ): DeleteTareaPayload
+}
+
+"""The output of our create `Tarea` mutation."""
+type CreateTareaPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `Tarea` that was created by this mutation."""
+  tarea: Tarea
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `Tarea`. May be used by Relay 1."""
+  tareaEdge(
+    """The method to use when ordering `Tarea`."""
+    orderBy: [TareasOrderBy!] = [NATURAL]
+  ): TareasEdge
+}
+
+"""All input for the create `Tarea` mutation."""
+input CreateTareaInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `Tarea` to be created by this mutation."""
+  tarea: TareaInput!
+}
+
+"""An input for mutations affecting `Tarea`"""
+input TareaInput {
+  id: BigInt
+  name: String!
+  titulo: String!
+  date: Datetime
+}
+
+"""The output of our update `Tarea` mutation."""
+type UpdateTareaPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `Tarea` that was updated by this mutation."""
+  tarea: Tarea
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `Tarea`. May be used by Relay 1."""
+  tareaEdge(
+    """The method to use when ordering `Tarea`."""
+    orderBy: [TareasOrderBy!] = [NATURAL]
+  ): TareasEdge
+}
+
+"""All input for the `updateTareaById` mutation."""
+input UpdateTareaByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the `Tarea` being updated.
+  """
+  tareaPatch: TareaPatch!
+  id: BigInt!
+}
+
+"""
+Represents an update to a `Tarea`. Fields that are set will be updated.
+"""
+input TareaPatch {
+  id: BigInt
+  name: String
+  titulo: String
+  date: Datetime
+}
+
+"""The output of our delete `Tarea` mutation."""
+type DeleteTareaPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `Tarea` that was deleted by this mutation."""
+  tarea: Tarea
+  deletedTareaId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `Tarea`. May be used by Relay 1."""
+  tareaEdge(
+    """The method to use when ordering `Tarea`."""
+    orderBy: [TareasOrderBy!] = [NATURAL]
+  ): TareasEdge
+}
+
+"""All input for the `deleteTareaById` mutation."""
+input DeleteTareaByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: BigInt!
+}
